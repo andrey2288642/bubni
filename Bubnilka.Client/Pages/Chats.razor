@@ -1,5 +1,5 @@
 @page "/chats"
-@layout MainLayout
+@layout Shared.MainLayout
 @inject ChatService ChatService
 @inject SignalRService SignalRService
 @inject AuthService AuthService
@@ -22,7 +22,7 @@
                 <h4>Результаты поиска:</h4>
                 @foreach (var user in searchResults)
                 {
-                    <div class="user-item" @onclick="@(() => CreateChatWithUser(user.Id))">
+                    <div class="user-item" @onclick="(() => CreateChatWithUser(user.Id))">
                         <span>@(user.DisplayName ?? user.Email)</span>
                         <span class="user-status">@(user.IsOnline ? "🟢" : "⚫")</span>
                     </div>
@@ -44,7 +44,7 @@
             @foreach (var chat in chats)
             {
                 <div class="chat-item @(selectedChatId == chat.Id ? "active" : "")" 
-                     @onclick="@(() => SelectChat(chat.Id, chat.OtherUserId, chat.OtherUserDisplayName ?? chat.OtherUserEmail))">
+                     @onclick="(() => SelectChat(chat.Id, chat.OtherUserId, chat.OtherUserDisplayName ?? chat.OtherUserEmail))">
                     <div class="chat-info">
                         <strong>@(chat.OtherUserDisplayName ?? chat.OtherUserEmail)</strong>
                         <span class="chat-status">@(chat.OtherUserIsOnline ? "🟢 Онлайн" : "⚫ Офлайн")</span>

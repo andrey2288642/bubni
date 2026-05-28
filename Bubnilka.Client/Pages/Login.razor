@@ -1,5 +1,5 @@
 @page "/login"
-@layout LoginLayout
+@layout Shared.LoginLayout
 @inject AuthService AuthService
 @inject NavigationManager NavigationManager
 @using Bubnilka.Shared.DTOs
@@ -14,16 +14,16 @@
 
 <EditForm Model="loginRequest" OnValidSubmit="HandleLogin">
     <DataAnnotationsValidator />
-    
+
     <div class="form-group">
         <label for="email">Email</label>
-        <InputText id="email" @bind-Value:get="loginRequest.Email" @bind-Value:set="value => loginRequest.Email = value" class="form-control" placeholder="your@email.com" />
+        <InputText id="email" @bind-Value="loginRequest.Email" class="form-control" placeholder="your@email.com" />
         <ValidationMessage For="@(() => loginRequest.Email)" />
     </div>
 
     <div class="form-group">
         <label for="password">Пароль</label>
-        <InputText id="password" type="password" @bind-Value:get="loginRequest.Password" @bind-Value:set="value => loginRequest.Password = value" class="form-control" placeholder="Введите пароль" />
+        <InputText id="password" type="password" @bind-Value="loginRequest.Password" class="form-control" placeholder="Введите пароль" />
         <ValidationMessage For="@(() => loginRequest.Password)" />
     </div>
 
