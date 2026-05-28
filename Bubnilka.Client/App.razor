@@ -1,0 +1,34 @@
+@using Microsoft.AspNetCore.Components.Web
+@using Bubnilka.Client.Services
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Бубнилка - Веб-мессенджер</title>
+    <base href="/" />
+    <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+    <App>
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>Загрузка...</p>
+        </div>
+    </App>
+
+    <div id="blazor-error-ui" data-nosnippet>
+        <environment include="Staging,Production">
+            Произошла ошибка. Пожалуйста, обновите страницу.
+        </environment>
+        <environment exclude="Staging,Production">
+            Произошла ошибка. Пожалуйста, проверьте консоль разработчика.
+        </environment>
+        <a href="" class="reload">Перезагрузить</a>
+        <a class="dismiss">✕</a>
+    </div>
+
+    <script src="_framework/blazor.webassembly.js"></script>
+</body>
+</html>

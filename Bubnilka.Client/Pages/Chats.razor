@@ -1,0 +1,287 @@
+@page "/chats"
+@layout MainLayout
+@inject ChatService ChatService
+@inject SignalRService SignalRService
+@inject AuthService AuthService
+@using Bubnilka.Shared.Models
+
+<h2>💬 Чаты</h2>
+
+<div class="chats-container">
+    <div class="chats-list">
+        <div class="search-box">
+            <input type="text" @bind="searchQuery" @bind:event="oninput" placeholder="Поиск пользователей..." />
+            <button @onclick="SearchUsers" class="btn btn-secondary">Найти</button>
+        </div>
+
+        @if (searchResults != null && searchResults.Any())
+        {
+            <div class="search-results">
+                <h4>Результаты поиска:</h4>
+                @foreach (var user in searchResults)
+                {
+                    <div class="user-item" @onclick="@(() => CreateChatWithUser(user.Id))">
+                        <span>@(user.DisplayName ?? user.Email)</span>
+                        <span class="user-status">@(user.IsOnline ? "🟢" : "⚫")</span>
+                    </div>
+                }
+            </div>
+        }
+
+        <h3>Ваши чаты</h3>
+        @if (isLoading)
+        {
+            <p>Загрузка...</p>
+        }
+        else if (chats == null || !chats.Any())
+        {
+            <p class="no-chats">У вас пока нет чатов. Найдите пользователя для начала общения.</p>
+        }
+        else
+        {
+            @foreach (var chat in chats)
+            {
+                <div class="chat-item @(selectedChatId == chat.Id ? "active" : "")" 
+                     @onclick="@(() => SelectChat(chat.Id, chat.OtherUserId, chat.OtherUserDisplayName ?? chat.OtherUserEmail))">
+                    <div class="chat-info">
+                        <strong>@(chat.OtherUserDisplayName ?? chat.OtherUserEmail)</strong>
+                        <span class="chat-status">@(chat.OtherUserIsOnline ? "🟢 Онлайн" : "⚫ Офлайн")</span>
+                    </div>
+                    <small class="chat-time">@FormatDate(chat.LastMessageAt)</small>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="chat-window">
+        @if (selectedChatId.HasValue)
+        {
+            <div class="chat-header">
+                <h3>@currentChatName</h3>
+            </div>
+            
+            <div class="messages-container" @ref="messagesContainerRef">
+                @if (messages == null)
+                {
+                    <p>Загрузка сообщений...</p>
+                }
+                else if (!messages.Any())
+                {
+                    <p class="no-messages">Нет сообщений. Напишите первое!</p>
+                }
+                else
+                {
+                    @foreach (var message in messages)
+                    {
+                        <div class="message @(message.SenderId == currentUserId ? "own" : "other")">
+                            <div class="message-sender">@message.SenderName</div>
+                            <div class="message-content">@message.Content</div>
+                            <div class="message-time">@message.CreatedAt.ToLocalTime().ToString("HH:mm")</div>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="message-input">
+                <textarea @bind="newMessage" @bind:event="oninput" placeholder="Введите сообщение..." rows="2"></textarea>
+                <button @onclick="SendMessage" class="btn btn-primary" disabled="@isSending">➤</button>
+            </div>
+        }
+        else
+        {
+            <div class="no-chat-selected">
+                <p>Выберите чат для начала общения</p>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private List<dynamic>? chats;
+    private List<dynamic>? messages;
+    private List<dynamic>? searchResults;
+    private int? selectedChatId;
+    private string? currentChatName;
+    private int currentUserId;
+    private string newMessage = "";
+    private string searchQuery = "";
+    private bool isLoading;
+    private bool isSending;
+    private ElementReference messagesContainerRef;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!AuthService.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        var user = await AuthService.GetCurrentUser();
+        if (user != null)
+        {
+            currentUserId = user.Id;
+        }
+
+        // Подключаемся к SignalR
+        await SignalRService.Connect();
+        
+        // Регистрируем обработчик входящих сообщений
+        SignalRService.OnMessageReceived += OnMessageReceived;
+        SignalRService.OnUserStatusChanged += OnUserStatusChanged;
+
+        await LoadChats();
+    }
+
+    private async Task LoadChats()
+    {
+        isLoading = true;
+        try
+        {
+            chats = await ChatService.GetChats();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка загрузки чатов: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void SelectChat(int chatId, int otherUserId, string name)
+    {
+        selectedChatId = chatId;
+        currentChatName = name;
+        _ = LoadMessages(chatId);
+        _ = SignalRService.JoinChat(chatId);
+    }
+
+    private async Task LoadMessages(int chatId)
+    {
+        try
+        {
+            messages = await ChatService.GetMessages(chatId);
+            await ScrollToBottom();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка загрузки сообщений: {ex.Message}");
+        }
+    }
+
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrWhiteSpace(newMessage) || !selectedChatId.HasValue)
+            return;
+
+        isSending = true;
+        try
+        {
+            // Отправляем через SignalR
+            await SignalRService.SendMessage(selectedChatId.Value, newMessage);
+            newMessage = "";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка отправки сообщения: {ex.Message}");
+        }
+        finally
+        {
+            isSending = false;
+        }
+    }
+
+    private async Task SearchUsers()
+    {
+        if (string.IsNullOrWhiteSpace(searchQuery) || searchQuery.Length < 2)
+            return;
+
+        try
+        {
+            searchResults = await ChatService.SearchUsers(searchQuery);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка поиска: {ex.Message}");
+        }
+    }
+
+    private async Task CreateChatWithUser(int otherUserId)
+    {
+        try
+        {
+            var result = await ChatService.CreateChat(otherUserId);
+            searchResults = null;
+            searchQuery = "";
+            await LoadChats();
+            
+            // Выбираем созданный чат
+            var newChat = chats?.FirstOrDefault(c => c.OtherUserId == otherUserId);
+            if (newChat != null)
+            {
+                SelectChat(newChat.Id, otherUserId, newChat.OtherUserDisplayName ?? newChat.OtherUserEmail);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка создания чата: {ex.Message}");
+        }
+    }
+
+    private void OnMessageReceived(dynamic message)
+    {
+        if (selectedChatId == message.ChatId)
+        {
+            if (messages == null)
+                messages = new List<dynamic>();
+            
+            messages.Add(message);
+            InvokeAsync(async () =>
+            {
+                await ScrollToBottom();
+                StateHasChanged();
+            });
+        }
+    }
+
+    private void OnUserStatusChanged(dynamic status)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ScrollToBottom()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("scrollToBottom", messagesContainerRef);
+        }
+        catch
+        {
+            // Игнорируем ошибки скролла
+        }
+    }
+
+    private string FormatDate(DateTime? date)
+    {
+        if (!date.HasValue) return "";
+        
+        var diff = DateTime.Now - date.Value.ToLocalTime();
+        if (diff.TotalMinutes < 1) return "Только что";
+        if (diff.TotalHours < 1) return $"{(int)diff.TotalMinutes} мин назад";
+        if (diff.TotalDays < 1) return $"{(int)diff.TotalHours} ч назад";
+        return date.Value.ToLocalTime().ToString("dd.MM.yyyy");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        SignalRService.OnMessageReceived -= OnMessageReceived;
+        SignalRService.OnUserStatusChanged -= OnUserStatusChanged;
+        
+        if (selectedChatId.HasValue)
+        {
+            await SignalRService.LeaveChat(selectedChatId.Value);
+        }
+    }
+}
