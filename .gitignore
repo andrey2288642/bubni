@@ -1,37 +1,43 @@
 ```
-# Build artifacts
+# Build outputs
 bin/
 obj/
-*.dll
-*.exe
-*.pdb
-*.config
-*.csproj.user
-*.userosscache
-*.sln.docstates
+out/
 
 # Dependencies
 packages/
 node_modules/
 
-# Logs
-*.log
+# User-specific files
+.vs/
+.vscode/
+*.userprefs
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 
-# Environment
+# Environment specific settings
 .env
 .env.local
-*.env.*
-
-# Editors
-.vscode/
-.idea/
-*.swp
-*.swo
+*.local
 
 # OS generated files
 .DS_Store
 Thumbs.db
+ehthumbs.db
+Icon?
+._*
 
-# Test results
-TestResults/
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*~
 ```
+
+Wait, let me reconsider the input. The changes are only to source files (.csproj, .razor, .cs) and no build artifacts, dependencies, or temp files are present in the change list.
+
+(empty)

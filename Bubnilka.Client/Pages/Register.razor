@@ -3,6 +3,7 @@
 @inject AuthService AuthService
 @inject NavigationManager NavigationManager
 @using Bubnilka.Shared.DTOs
+@using Microsoft.AspNetCore.Components.Forms
 
 <h2>Регистрация</h2>
 
@@ -21,25 +22,25 @@
     
     <div class="form-group">
         <label for="email">Email</label>
-        <InputText id="email" @bind-Value="registerRequest.Email" class="form-control" placeholder="your@email.com" />
+        <InputText id="email" @bind-Value:get="registerRequest.Email" @bind-Value:set="value => registerRequest.Email = value" class="form-control" placeholder="your@email.com" />
         <ValidationMessage For="@(() => registerRequest.Email)" />
     </div>
 
     <div class="form-group">
         <label for="displayName">Отображаемое имя (необязательно)</label>
-        <InputText id="displayName" @bind-Value="registerRequest.DisplayName" class="form-control" placeholder="Ваше имя" />
+        <InputText id="displayName" @bind-Value:get="registerRequest.DisplayName" @bind-Value:set="value => registerRequest.DisplayName = value" class="form-control" placeholder="Ваше имя" />
         <ValidationMessage For="@(() => registerRequest.DisplayName)" />
     </div>
 
     <div class="form-group">
         <label for="password">Пароль</label>
-        <InputText id="password" type="password" @bind-Value="registerRequest.Password" class="form-control" placeholder="Минимум 8 символов" />
+        <InputText id="password" type="password" @bind-Value:get="registerRequest.Password" @bind-Value:set="value => registerRequest.Password = value" class="form-control" placeholder="Минимум 8 символов" />
         <ValidationMessage For="@(() => registerRequest.Password)" />
     </div>
 
     <div class="form-group">
         <label for="confirmPassword">Подтверждение пароля</label>
-        <InputText id="confirmPassword" type="password" @bind-Value="registerRequest.ConfirmPassword" class="form-control" placeholder="Повторите пароль" />
+        <InputText id="confirmPassword" type="password" @bind-Value:get="registerRequest.ConfirmPassword" @bind-Value:set="value => registerRequest.ConfirmPassword = value" class="form-control" placeholder="Повторите пароль" />
         <ValidationMessage For="@(() => registerRequest.ConfirmPassword)" />
     </div>
 
