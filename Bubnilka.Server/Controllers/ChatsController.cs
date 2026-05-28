@@ -39,21 +39,23 @@ public class ChatsController : ControllerBase
             return Unauthorized();
         }
 
+        var currentUserId = userId.Value;
+
         var chats = await _context.Chats
             .Include(c => c.User1)
             .Include(c => c.User2)
             .Include(c => c.Messages)
-            .Where(c => c.User1Id == userId || c.User2Id == userId)
+            .Where(c => c.User1Id == currentUserId || c.User2Id == currentUserId)
             .OrderByDescending(c => c.LastMessageAt)
             .ToListAsync();
 
         var result = chats.Select(c => new
         {
             c.Id,
-            OtherUserId = c.User1Id == userId ? c.User2Id : c.User1Id,
-            OtherUserEmail = c.User1Id == userId ? c.User2!.Email : c.User1!.Email,
-            OtherUserDisplayName = c.User1Id == userId ? c.User2!.DisplayName : c.User1!.DisplayName,
-            OtherUserIsOnline = c.User1Id == userId ? c.User2!.IsOnline : c.User1!.IsOnline,
+            OtherUserId = c.User1Id == currentUserId ? c.User2Id : c.User1Id,
+            OtherUserEmail = c.User1Id == currentUserId ? c.User2!.Email : c.User1!.Email,
+            OtherUserDisplayName = c.User1Id == currentUserId ? c.User2!.DisplayName : c.User1!.DisplayName,
+            OtherUserIsOnline = c.User1Id == currentUserId ? c.User2!.IsOnline : c.User1!.IsOnline,
             LastMessageAt = c.LastMessageAt,
             MessagesCount = c.Messages?.Count ?? 0
         });
@@ -73,6 +75,8 @@ public class ChatsController : ControllerBase
             return Unauthorized();
         }
 
+        var currentUserId = userId.Value;
+
         // Валидация входных данных
         if (!ModelState.IsValid)
         {
@@ -80,7 +84,7 @@ public class ChatsController : ControllerBase
         }
 
         // Проверка что пользователь не создает чат сам с собой
-        if (request.OtherUserId == userId)
+        if (request.OtherUserId == currentUserId)
         {
             return BadRequest(new { Error = "Нельзя создать чат сам с собой" });
         }
@@ -95,8 +99,8 @@ public class ChatsController : ControllerBase
         // Проверяем существует ли уже чат между этими пользователями
         var existingChat = await _context.Chats
             .FirstOrDefaultAsync(c => 
-                (c.User1Id == userId && c.User2Id == request.OtherUserId) ||
-                (c.User1Id == request.OtherUserId && c.User2Id == userId));
+                (c.User1Id == currentUserId && c.User2Id == request.OtherUserId) ||
+                (c.User1Id == request.OtherUserId && c.User2Id == currentUserId));
 
         if (existingChat != null)
         {
@@ -110,7 +114,7 @@ public class ChatsController : ControllerBase
         // Создаем новый чат
         var chat = new Chat
         {
-            User1Id = userId,
+            User1Id = currentUserId,
             User2Id = request.OtherUserId,
             CreatedAt = DateTime.UtcNow
         };
@@ -118,7 +122,7 @@ public class ChatsController : ControllerBase
         _context.Chats.Add(chat);
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Создан чат между пользователями {UserId} и {OtherUserId}", userId, request.OtherUserId);
+        _logger.LogInformation("Создан чат между пользователями {UserId} и {OtherUserId}", currentUserId, request.OtherUserId);
 
         return Ok(new
         {
@@ -139,11 +143,13 @@ public class ChatsController : ControllerBase
             return Unauthorized();
         }
 
+        var currentUserId = userId.Value;
+
         // Проверяем что пользователь является участником чата
         var chat = await _context.Chats
             .Include(c => c.Messages)
             .ThenInclude(m => m.Sender)
-            .FirstOrDefaultAsync(c => c.Id == chatId && (c.User1Id == userId || c.User2Id == userId));
+            .FirstOrDefaultAsync(c => c.Id == chatId && (c.User1Id == currentUserId || c.User2Id == currentUserId));
 
         if (chat == null)
         {
@@ -177,9 +183,11 @@ public class ChatsController : ControllerBase
             return Unauthorized();
         }
 
+        var currentUserId = userId.Value;
+
         // Проверяем что пользователь является участником чата
         var chat = await _context.Chats.FindAsync(chatId);
-        if (chat == null || (chat.User1Id != userId && chat.User2Id != userId))
+        if (chat == null || (chat.User1Id != currentUserId && chat.User2Id != currentUserId))
         {
             return NotFound(new { Error = "Чат не найден или доступ запрещен" });
         }
@@ -201,7 +209,7 @@ public class ChatsController : ControllerBase
         var message = new Message
         {
             ChatId = chatId,
-            SenderId = userId,
+            SenderId = currentUserId,
             Content = content,
             CreatedAt = DateTime.UtcNow,
             IsRead = false
@@ -214,7 +222,7 @@ public class ChatsController : ControllerBase
         
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Пользователь {UserId} отправил сообщение в чат {ChatId}", userId, chatId);
+        _logger.LogInformation("Пользователь {UserId} отправил сообщение в чат {ChatId}", currentUserId, chatId);
 
         return Ok(new
         {

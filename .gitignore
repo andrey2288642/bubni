@@ -1,117 +1,37 @@
 ```
-# Build results
+# Build artifacts
 bin/
 obj/
-out/
-
-# User-specific files
-.vs/
-.vscode/
-.userprefs
-
-# Build results
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
-x64/
-x86/
-build/
-bld/
-[Bb]in/
-[Oo]bj/
-
-# Visual Studio 2015/2017/2019 cache/options
-*.VC.db
-*.VC.VC.opendb
-*.user
-*.userosscache
-*.suo
+*.dll
+*.exe
+*.pdb
+*.config
 *.csproj.user
-*.vbproj.user
-*.vcxproj.user
+*.userosscache
+*.sln.docstates
 
-# Visual Studio Code
-.vscode/
-
-# MSTest test Results
-[Tt]est[Rr]esult*/
-[Bb]uild[Ll]og.*
-
-# NUNIT
-*.VisualState.xml
-TestResult.xml
-nunit-*.xml
-
-# Build Results of some tools
-*.Cache
-client.dsk
-
-# Benchmark Results
-BenchmarkDotNet.Artifacts/
-
-# .NET Core
-project.lock.json
-project.fragment.lock.json
-artifacts/
-
-# StyleCop
-StyleCopReport.xml
-
-# Files built by Visual Studio
-*_i.cs
-*_g.cs
-*_h.h
-*.kdev4*
-
-# Web
+# Dependencies
+packages/
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+
+# Logs
+*.log
 
 # Environment
 .env
 .env.local
-.env.*
+*.env.*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
 
 # OS generated files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
-desktop.ini
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-.venv/
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.log
-.git/modules/
-.httplib2/
-.egg-info/
-.eggs/
-.venv.bak/
-.python-version
-.pytest_cache/
-.mypy_cache/
-.pyre/
-.pytype/
+# Test results
+TestResults/
 ```

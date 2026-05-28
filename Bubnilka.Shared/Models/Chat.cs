@@ -28,5 +28,5 @@ public class Chat
     public DateTime? LastMessageAt { get; set; }
 
     // Навигационное свойство для сообщений
-    public ICollection<Message>? Messages { get; set; }
+    public ICollection<Message> Messages { get; set; } = new List<Message>();
 }

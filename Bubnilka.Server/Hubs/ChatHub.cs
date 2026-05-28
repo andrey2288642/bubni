@@ -32,6 +32,8 @@ public class ChatHub : Hub
             return;
         }
 
+        var currentUserId = userId.Value;
+
         // Валидация контента
         if (string.IsNullOrWhiteSpace(content) || content.Length > 4096)
         {
@@ -41,7 +43,7 @@ public class ChatHub : Hub
 
         // Проверяем что пользователь является участником чата
         var chat = await _context.Chats.FindAsync(chatId);
-        if (chat == null || (chat.User1Id != userId && chat.User2Id != userId))
+        if (chat == null || (chat.User1Id != currentUserId && chat.User2Id != currentUserId))
         {
             await Clients.Caller.SendAsync("Error", "Чат не найден или доступ запрещен");
             return;
@@ -51,7 +53,7 @@ public class ChatHub : Hub
         var message = new Message
         {
             ChatId = chatId,
-            SenderId = userId.Value,
+            SenderId = currentUserId,
             Content = content,
             CreatedAt = DateTime.UtcNow,
             IsRead = false
@@ -65,7 +67,7 @@ public class ChatHub : Hub
         await _context.SaveChangesAsync();
 
         // Получаем данные отправителя
-        var sender = await _context.Users.FindAsync(userId.Value);
+        var sender = await _context.Users.FindAsync(currentUserId);
         
         // Отправляем сообщение всем участникам чата
         await Clients.Group(GetChatGroupName(chatId)).SendAsync("ReceiveMessage", new
@@ -78,7 +80,7 @@ public class ChatHub : Hub
             ChatId = chatId
         });
 
-        _logger.LogInformation("Сообщение отправлено в чат {ChatId} пользователем {UserId}", chatId, userId);
+        _logger.LogInformation("Сообщение отправлено в чат {ChatId} пользователем {UserId}", chatId, currentUserId);
     }
 
     /// <summary>
@@ -93,9 +95,11 @@ public class ChatHub : Hub
             return;
         }
 
+        var currentUserId = userId.Value;
+
         // Проверяем что пользователь является участником чата
         var chat = await _context.Chats.FindAsync(chatId);
-        if (chat == null || (chat.User1Id != userId && chat.User2Id != userId))
+        if (chat == null || (chat.User1Id != currentUserId && chat.User2Id != currentUserId))
         {
             await Clients.Caller.SendAsync("Error", "Чат не найден или доступ запрещен");
             return;
@@ -103,7 +107,7 @@ public class ChatHub : Hub
 
         await Groups.AddToGroupAsync(Context.ConnectionId, GetChatGroupName(chatId));
         
-        _logger.LogInformation("Пользователь {UserId} присоединился к чату {ChatId}", userId, chatId);
+        _logger.LogInformation("Пользователь {UserId} присоединился к чату {ChatId}", currentUserId, chatId);
     }
 
     /// <summary>
@@ -127,7 +131,9 @@ public class ChatHub : Hub
             return;
         }
 
-        var user = await _context.Users.FindAsync(userId.Value);
+        var currentUserId = userId.Value;
+
+        var user = await _context.Users.FindAsync(currentUserId);
         if (user != null)
         {
             user.IsOnline = isOnline;
@@ -139,14 +145,14 @@ public class ChatHub : Hub
 
             // Уведомляем все чаты пользователя об изменении статуса
             var chats = await _context.Chats
-                .Where(c => c.User1Id == userId || c.User2Id == userId)
+                .Where(c => c.User1Id == currentUserId || c.User2Id == currentUserId)
                 .ToListAsync();
 
             foreach (var chat in chats)
             {
                 await Clients.Group(GetChatGroupName(chat.Id)).SendAsync("UserStatusChanged", new
                 {
-                    UserId = userId.Value,
+                    UserId = currentUserId,
                     IsOnline = isOnline,
                     LastSeenAt = user.LastSeenAt
                 });
