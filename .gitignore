@@ -1,11 +1,9 @@
 ```
-# Build artifacts
+# Build outputs
 bin/
 obj/
-out/
 dist/
-build/
-target/
+publish/
 
 # Dependencies
 node_modules/
@@ -14,24 +12,22 @@ packages/
 # Logs
 *.log
 
-# Environment
-.env
-.env.local
-*.env.*
-
-# Editors
+# User-specific files
 .vscode/
 .idea/
-*.swp
-*.swo
+*.userprefs
 
-# OS
+# Environment specific settings
+.env
+.env.local
+*.env*
+
+# OS generated files
 .DS_Store
 Thumbs.db
 
-# Test and coverage
-coverage/
-htmlcov/
-*.coverage
-.test*
+# Temporary files
+*.tmp
+*.temp
+*~
 ```
