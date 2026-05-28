@@ -11,12 +11,21 @@
     <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
-    <App>
-        <div class="loading-container">
-            <div class="loading-spinner"></div>
-            <p>Загрузка...</p>
-        </div>
-    </App>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        </Found>
+        <NotFound>
+            <PageTitle>Страница не найдена</PageTitle>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <div class="error-container">
+                    <h2>404 - Страница не найдена</h2>
+                    <p>Извините, страница по запрошенному адресу не найдена.</p>
+                    <a href="/login" class="btn btn-primary">На страницу входа</a>
+                </div>
+            </LayoutView>
+        </NotFound>
+    </Router>
 
     <div id="blazor-error-ui" data-nosnippet>
         <environment include="Staging,Production">
