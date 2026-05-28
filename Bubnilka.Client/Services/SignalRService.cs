@@ -44,7 +44,7 @@ public class SignalRService : IAsyncDisposable
                 {
                     options.AccessTokenProvider = () => Task.FromResult(token);
                 })
-                .WithAutomaticReconnect(new[] { 0, 2, 5, 10, 30 })
+                .WithAutomaticReconnect(new[] { TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(30) })
                 .Build();
 
             // Регистрируем обработчики

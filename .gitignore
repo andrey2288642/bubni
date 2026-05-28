@@ -2,59 +2,41 @@
 # Build artifacts
 bin/
 obj/
-out/
-_dist/
-_output/
+*.dll
+*.exe
+*.pdb
+*.nupkg
+*.log
 
 # Dependencies
 packages/
 node_modules/
-.nuget/
-.npm/
 
-# Logs
-*.log
-logs/
+# IDE files
+.vs/
+.idea/
+*.userprefs
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
 
-# Environment
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Environment variables
 .env
 .env.local
-.env.*
+*.env.*
 
-# Editors
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Tests and coverage
+# Testing
+TestResults/
 coverage/
-htmlcov/
-.coverage
-*.coverage
-
-# Compiled files
-*.dll
-*.exe
-*.so
-*.a
-*.o
-*.obj
-*.pyc
-__pycache__/
-*.class
-
-# Compressed files
-*.zip
-*.gz
-*.tar
-*.tgz
-*.bz2
-*.xz
-*.7z
-*.rar
 ```
