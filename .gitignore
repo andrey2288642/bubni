@@ -2,39 +2,58 @@
 # Build artifacts
 bin/
 obj/
-out/
-dist/
-build/
+*.dll
+*.exe
+*.pdb
+*.so
+*.dylib
+*.jar
+*.war
+*.class
+*.o
+*.obj
+*.out
 
 # Dependencies
-node_modules/
 packages/
+node_modules/
+vendor/
 
-# Logs
+# IDE files
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Log files
 *.log
 
-# Environment
+# Environment variables
 .env
 .env.local
 *.env.*
 
-# Editors
-.vscode/
-.idea/
-*.swp
-*.swo
+# Testing
+TestResults/
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Test and coverage
-coverage/
-htmlcov/
-.coverage
-*.coverage
+# User-specific files
+*.userprefs
 
 # Temporary files
 *.tmp
 *.temp
+*~
 ```
