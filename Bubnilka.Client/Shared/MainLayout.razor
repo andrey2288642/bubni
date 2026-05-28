@@ -1,0 +1,55 @@
+@inherits LayoutComponentBase
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+@implements IDisposable
+
+<div class="main-layout">
+    @if (AuthService.IsAuthenticated)
+    {
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🫧 Бубнилка</h2>
+                <button @onclick="Logout" class="btn-logout" title="Выйти">🚪</button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/chats" class="nav-link @(NavigationManager.Uri.EndsWith("/chats") ? "active" : "")">
+                    💬 Чаты
+                </a>
+            </nav>
+            <div class="user-info">
+                <span>@AuthService.CurrentUser?.DisplayName</span>
+                <small>@(AuthService.CurrentUser?.IsOnline == true ? "🟢 Онлайн" : "⚫ Офлайн")</small>
+            </div>
+        </aside>
+        <main class="content">
+            @Body
+        </main>
+    }
+    else
+    {
+        @Body
+    }
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        AuthService.AuthStateChanged += OnAuthStateChanged;
+    }
+
+    private async Task Logout()
+    {
+        await AuthService.Logout();
+        NavigationManager.NavigateTo("/login");
+    }
+
+    private void OnAuthStateChanged(object? sender, bool isAuthenticated)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        AuthService.AuthStateChanged -= OnAuthStateChanged;
+    }
+}

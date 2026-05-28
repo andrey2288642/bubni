@@ -1,0 +1,33 @@
+```
+# Build outputs
+bin/
+obj/
+dist/
+publish/
+
+# Dependencies
+node_modules/
+packages/
+
+# Logs
+*.log
+
+# User-specific files
+.vscode/
+.idea/
+*.userprefs
+
+# Environment specific settings
+.env
+.env.local
+*.env*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*~
+```

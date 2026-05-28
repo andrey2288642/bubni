@@ -1,0 +1,43 @@
+@using Microsoft.AspNetCore.Components.Web
+@using Bubnilka.Client.Services
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Бубнилка - Веб-мессенджер</title>
+    <base href="/" />
+    <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        </Found>
+        <NotFound>
+            <PageTitle>Страница не найдена</PageTitle>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <div class="error-container">
+                    <h2>404 - Страница не найдена</h2>
+                    <p>Извините, страница по запрошенному адресу не найдена.</p>
+                    <a href="/login" class="btn btn-primary">На страницу входа</a>
+                </div>
+            </LayoutView>
+        </NotFound>
+    </Router>
+
+    <div id="blazor-error-ui" data-nosnippet>
+        <environment include="Staging,Production">
+            Произошла ошибка. Пожалуйста, обновите страницу.
+        </environment>
+        <environment exclude="Staging,Production">
+            Произошла ошибка. Пожалуйста, проверьте консоль разработчика.
+        </environment>
+        <a href="" class="reload">Перезагрузить</a>
+        <a class="dismiss">✕</a>
+    </div>
+
+    <script src="_framework/blazor.webassembly.js"></script>
+</body>
+</html>
